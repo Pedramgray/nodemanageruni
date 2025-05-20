@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>مدیریت نود</title>
+    <style>
+        body { font-family: Tahoma; direction: rtl; padding: 20px; background-color: #f4f4f4; }
+        input, button { margin: 5px; padding: 5px; }
+        h2 { color: #333; }
+        pre { background: #fff; padding: 10px; border: 1px solid #ccc; overflow-x: auto; }
+        table { border-collapse: collapse; width: 100%; background: white; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>پنل مدیریت نود</h1>
+
+    <h2>افزودن نود جدید</h2>
+    <input id="id" placeholder="ID">
+    <input id="name" placeholder="نام">
+    <input id="priority" placeholder="اولویت">
+    <button onclick="addNode()">افزودن</button>
+
+    <h2>جستجوی نود</h2>
+    <input id="searchId" placeholder="ID">
+    <button onclick="findNode()">جستجو</button>
+
+    <h2>حذف نود</h2>
+    <input id="deleteId" placeholder="ID">
+    <button onclick="deleteNode()">حذف</button>
+
+    <h2>افزایش اولویت</h2>
+    <input id="boostId" placeholder="ID">
+    <input id="newPriority" placeholder="اولویت جدید">
+    <button onclick="boostPriority()">افزایش</button>
+
+    <h2>رسیدگی به نود دارای بیشترین اولویت</h2>
+    <button onclick="handleTop()">رسیدگی</button>
+
+    <h2>نمایش درخت (بر اساس ID)</h2>
+    <button onclick="getTree()">نمایش درخت</button>
+    <pre id="tree"></pre>
+
+    <h2>نمایش صف اولویت (بر اساس Priority)</h2>
+    <button onclick="getQueue()">نمایش صف</button>
+    <div id="queue"></div>
+
+<script>
+const api = "";
+
+function setApiFromHost() {
+    const host = location.host;
+    const proto = location.protocol;
+    window.api = proto + "//" + host;
+}
+setApiFromHost();
+
+async function addNode() {
+    const data = {
+        id: parseInt(document.getElementById("id").value),
+        name: document.getElementById("name").value,
+        priority: parseInt(document.getElementById("priority").value)
+    };
+    const res = await fetch(api + "/add", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    });
+    alert(JSON.stringify(await res.json()));
+}
+
+async function findNode() {
+    const id = document.getElementById("searchId").value;
+    const res = await fetch(api + "/find/" + id);
+    alert(JSON.stringify(await res.json()));
+}
+
+async function deleteNode() {
+    const id = document.getElementById("deleteId").value;
+    const res = await fetch(api + "/delete/" + id, { method: "DELETE" });
+    alert(JSON.stringify(await res.json()));
+}
+
+async function boostPriority() {
+    const res = await fetch(api + "/boost", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            id: parseInt(document.getElementById("boostId").value),
+            new_priority: parseInt(document.getElementById("newPriority").value)
+        })
+    });
+    alert(JSON.stringify(await res.json()));
+}
+
+async function handleTop() {
+    const res = await fetch(api + "/handle", { method: "POST" });
+    alert(JSON.stringify(await res.json()));
+}
+
+async function getTree() {
+    const res = await fetch(api + "/tree");
+    const data = await res.json();
+    document.getElementById("tree").textContent = JSON.stringify(data, null, 2);
+}
+
+async function getQueue() {
+    const res = await fetch(api + "/queue");
+    const data = await res.json();
+    let html = "<table><tr><th>ID</th><th>نام</th><th>اولویت</th></tr>";
+    for (let item of data) {
+        html += `<tr><td>${item.id}</td><td>${item.name}</td><td>${item.priority}</td></tr>`;
+    }
+    html += "</table>";
+    document.getElementById("queue").innerHTML = html;
+}
+</script>
+</body>
+</html>
