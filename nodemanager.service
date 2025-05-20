@@ -1,0 +1,12 @@
+[Unit]
+Description=Node Manager API
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/root/nodemanager_project/nodemanager
+WorkingDirectory=/root/nodemanager_project
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
